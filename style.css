@@ -45,3 +45,13 @@ header {
   font-weight: bold;
   font-size:16px;
 }
+
+#forecast div {
+  float: left;
+  width: 20%;
+  padding:10 px;
+}
+
+#uv-index {
+  display: inline-block;
+}

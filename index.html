@@ -50,7 +50,9 @@
       <div id="uv-index"></div><br/>
     </div>
      <div id="forecast-5day">
-      forecast
+      <h2>5 day forecast</h2>
+      <div id="forecast">
+      </div>
     </div>
   </div>
 
@@ -66,6 +68,15 @@
     const setUV = async (lat, lon) => {
        const response = await fetch(`http://api.openweathermap.org/data/2.5/uvi?appid=${API_KEY}&lat=${lat}&lon=${lon}`);
         results = await response.json(); //extract JSON from the http response
+        if (results.value > 9) {
+          document.getElementById('uv-index').style.backgroundColor = "red";
+        }
+        else if (results.value > 3) {
+          document.getElementById('uv-index').style.backgroundColor = "orange";
+        }
+        else {
+          document.getElementById('uv-index').style.backgroundColor = "green";
+        }
         document.getElementById('uv-index').innerHTML = "UV index: " + results.value;
     }
     
@@ -92,15 +103,33 @@
     }
 
     function setTemperatureInfo(results) {
-      document.getElementById('city-date').innerHTML = results.city.name + ` ${month}-${day}-${year }`;
+      const iconCode = results.list[0].weather[0].icon;
+      document.getElementById('city-date').innerHTML = results.city.name + ` ${month}-${day}-${year}` + `<span><img src="http://openweathermap.org/img/wn/${iconCode}@2x.png"/></span>`;
       document.getElementById('temp').innerHTML = "Temperature: " + kelvinToFarenheit(results.list[0].main.temp) + ' &deg;F';
       document.getElementById('humid').innerHTML = "Humidity: " + results.list[0].main.humidity + " %";
       document.getElementById('wind-speed').innerHTML = "Wind Speed: " + results.list[0].wind.speed + " MPH";
 
-
       const lat = results.city.coord.lat;
       const lon = results.city.coord.lon;
       setUV(lat,lon);
+      setFiveDayForecast(results);
+    }
+
+    function setFiveDayForecast(results) {
+      const foreCast = document.getElementById('forecast');
+      foreCast.innerHTML="";
+      let currentDay = new Date();
+      for (let i =1; i <6; i ++) {
+        currentDay.setDate(new Date(currentDay).getDate()+1);
+        const dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
+        const [{ value: month },,{ value: day },,{ value: year }] = dateTimeFormat.formatToParts(currentDay);
+
+        const tempDiv = document.createElement("div");
+        const iconCode = results.list[i].weather[0].icon;
+        tempDiv.innerHTML = `${month}-${day}-${year}` + "<br/>" + `<span><img src="http://openweathermap.org/img/wn/${iconCode}@2x.png"/></span>` + "Temperature: " + kelvinToFarenheit(results.list[i].main.temp) + ' &deg;F' + "<br/>" +  "Humidity: " + results.list[i].main.humidity + " %";;
+
+        document.getElementById('forecast').append(tempDiv);
+      }
     }
 
     
@@ -112,7 +141,6 @@
         button.innerHTML = localStorage.key(i);
         button.onclick= () => { doSearch(localStorage.key(i)) };
         searchHistory.append(button);
-        //console.log( localStorage.getItem( localStorage.key(i)));
       }
     }
     populateSearchHistory();
