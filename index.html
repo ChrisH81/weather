@@ -43,7 +43,11 @@
   </div>
   <div id ="main-content">
     <div id="temperature-info">
-      temp info
+      <div id="city-date"></div><br/>      
+      <div id="temp"></div><br/>
+      <div id="humid"></div><br/>
+      <div id="wind-speed"></div><br/>
+      <div id="uv-index"></div><br/>
     </div>
      <div id="forecast-5day">
       forecast
@@ -53,7 +57,18 @@
 
 
   <script>
-    const searchHistory = document.getElementById("search-history");
+    const API_KEY = '80c9cd2b419772e71e2c9153eaf8bb0f';
+    const today = new Date()
+    const dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' }) 
+    const [{ value: month },,{ value: day },,{ value: year }] = dateTimeFormat.formatToParts(today); 
+
+
+    const setUV = async (lat, lon) => {
+       const response = await fetch(`http://api.openweathermap.org/data/2.5/uvi?appid=${API_KEY}&lat=${lat}&lon=${lon}`);
+        results = await response.json(); //extract JSON from the http response
+        document.getElementById('uv-index').innerHTML = "UV index: " + results.value;
+    }
+    
 
     const doSearch = async (searchTerm) => {
 
@@ -64,7 +79,7 @@
 
       if (localStorage.getItem(cityName)) {;
         console.log("get results from local storage");
-        results = localStorage.getItem(cityName);
+        results = JSON.parse(localStorage.getItem(cityName));
       }
       else {
         console.log("get results from API call");
@@ -72,15 +87,45 @@
         results = await response.json(); //extract JSON from the http response
         localStorage.setItem(cityName, JSON.stringify(results));
       }
+      setTemperatureInfo(results);
+      populateSearchHistory();
     }
 
-    for (let i = 0;  i < localStorage.length; i++ ) {
+    function setTemperatureInfo(results) {
+      document.getElementById('city-date').innerHTML = results.city.name + ` ${month}-${day}-${year }`;
+      document.getElementById('temp').innerHTML = "Temperature: " + kelvinToFarenheit(results.list[0].main.temp) + ' &deg;F';
+      document.getElementById('humid').innerHTML = "Humidity: " + results.list[0].main.humidity + " %";
+      document.getElementById('wind-speed').innerHTML = "Wind Speed: " + results.list[0].wind.speed + " MPH";
+
+
+      const lat = results.city.coord.lat;
+      const lon = results.city.coord.lon;
+      setUV(lat,lon);
+    }
+
+    
+    function populateSearchHistory() {
+      const searchHistory = document.getElementById("search-history");
+      searchHistory.innerHTML = "";
+      for (let i = 0;  i < localStorage.length; i++ ) {
         const button = document.createElement('button');
         button.innerHTML = localStorage.key(i);
-        button.onclick=doSearch(localStorage.key(i));
+        button.onclick= () => { doSearch(localStorage.key(i)) };
         searchHistory.append(button);
         //console.log( localStorage.getItem( localStorage.key(i)));
+      }
     }
+    populateSearchHistory();
+
+
+    function kelvinToFarenheit(kelvin) {
+      // Celsius is 273 degrees less than Kelvin
+      const celsius = kelvin - 273;
+      // Calculating Fahrenheit temperature to the nearest integer
+      let farenheit = Math.floor(celsius * (9/5) + 32);
+      return farenheit;
+    }
+
   </script>
 </body>
 </html>
