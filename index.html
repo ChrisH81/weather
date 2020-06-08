@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+  />
+  <link
+  rel="stylesheet"
+  href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+  integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+  crossorigin="anonymous"
+  />
+  <link
+  href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+  rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <title>Weather Dashboard</title>
+</head>
+
+<body>
+  <header>
+    <h1 class="display-4">Weather Dashboard</h1>
+  </header>
+
+  <div id="left-sidebar">
+    <div id="search-title">Search for a city</div>
+    <!-- Search form -->
+    <div class="input-group md-form form-sm form-2 pl-0">
+      <input id="city-search" class="form-control my-0 py-1 lime-border" type="text" placeholder="Search" aria-label="Search">
+      <div class="input-group-append">
+        <span class="input-group-text lime lighten-2" id="basic-text1">
+          <i onclick="doSearch()" class="fas fa-search text-grey" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+    <div id="search-history">
+    </div>
+  </div>
+  <div id ="main-content">
+    <div id="temperature-info">
+      temp info
+    </div>
+     <div id="forecast-5day">
+      forecast
+    </div>
+  </div>
+
+
+
+  <script>
+    const searchHistory = document.getElementById("search-history");
+
+    const doSearch = async (searchTerm) => {
+
+      const cityName = searchTerm || document.getElementById('city-search').value;
+      console.log(`search for ${cityName}`);
+
+      let results = "";
+
+      if (localStorage.getItem(cityName)) {;
+        console.log("get results from local storage");
+        results = localStorage.getItem(cityName);
+      }
+      else {
+        console.log("get results from API call");
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=80c9cd2b419772e71e2c9153eaf8bb0f`);
+        results = await response.json(); //extract JSON from the http response
+        localStorage.setItem(cityName, JSON.stringify(results));
+      }
+    }
+
+    for (let i = 0;  i < localStorage.length; i++ ) {
+        const button = document.createElement('button');
+        button.innerHTML = localStorage.key(i);
+        button.onclick=doSearch(localStorage.key(i));
+        searchHistory.append(button);
+        //console.log( localStorage.getItem( localStorage.key(i)));
+    }
+  </script>
+</body>
+</html>

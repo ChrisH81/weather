@@ -1,0 +1,41 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+}
+
+header {
+  text-align: center;
+  background-color: rgb(52, 58, 64);
+  color: white;
+ }
+
+#left-sidebar {
+  float: left;
+  width: 30%;
+  padding: 20px;
+}
+
+#main-content {
+  float:left;
+  width:70%;
+  padding: 20px;
+}
+
+#temperature-info {
+  width:100%;
+  height:300px;
+}
+
+#forecast-5day {
+  width:100%;
+  height:400px;
+}
+
+#search-title {
+  font-weight: bold;
+  font-size:18px;
+}
+
+#search-history button {
+  width:100%;
+}
